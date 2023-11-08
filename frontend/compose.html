@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Audio Recorder</title>
+    <style>
+        body {
+            background-color: #8ca3a3;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            background-color: #484f4f;
+            padding: 50px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        input[type="email"] {
+            width: 100%;
+            padding: 10px;
+            margin: 30px 0;
+            border: none;
+            border-radius: 5px;
+        }
+
+        audio {
+            width: 110%;
+        }
+    </style>
+</head>
+<body>
+<embed src="composeLoad.mp3" loop="true" autostart="true" width="2"
+         height="0">
+<audio id="startrec" src="recordingStarted.mp3"></audio>
+<audio id="sendemail" src="sendemail.mp3"></audio>
+<audio id="validemail" src="validemail.mp3"></audio>
+    <div class="container">
+        <h1><font color="white">Compose Window</font></h1>
+        <input type="email" id="receiverEmail" placeholder="Receiver's Email">
+        <audio controls id="audioPlayer"></audio>
+    </div>
+    <script>
+        function setFocusOnEmailInput() {
+            const emailInput = document.getElementById('receiverEmail');
+            emailInput.focus();
+        }
+
+        window.onload = setFocusOnEmailInput();
+
+        let audioStream;
+        let mediaRecorder;
+        const recordedChunks = [];
+
+        document.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+
+	const userEmail = document.getElementById('receiverEmail').value;
+    
+        const emailValidationRegex = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+        if (!emailValidationRegex.test(userEmail)) {
+            // Play the audio for invalid email
+            const audioPlayer = document.getElementById("validemail");
+            audioPlayer.play();
+            return;
+        }
+
+	const audioPlayer = document.getElementById("startrec");
+audioPlayer.play();
+audioPlayer.addEventListener("ended", function () {
+                // Redirect to another page after audio finishes (change URL)
+                   startRecording();
+            });
+          
+        });
+
+        document.addEventListener('click', (e) => {
+
+        const userEmail = document.getElementById('receiverEmail').value;
+    
+        const emailValidationRegex = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+        if (!emailValidationRegex.test(userEmail)) {
+            // Play the audio for invalid email
+            const audioPlayer = document.getElementById("validemail");
+            audioPlayer.play();
+            return;
+        }
+
+            if (e.detail === 1) {
+                stopRecording();
+document.getElementById("sendemail").play();
+            }
+        });
+
+        document.addEventListener('dblclick', () => {
+	const userEmail = document.getElementById('receiverEmail').value;
+            sendToServer();
+        });
+
+        async function startRecording() {
+            try {
+                audioStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                mediaRecorder = new MediaRecorder(audioStream);
+
+                mediaRecorder.ondataavailable = (event) => {
+                    if (event.data.size > 0) {
+                        recordedChunks.push(event.data);
+                    }
+                };
+
+                mediaRecorder.onstop = () => {
+                    const blob = new Blob(recordedChunks, { type: 'audio/wav' });
+                    const audioUrl = URL.createObjectURL(blob);
+                    document.getElementById('audioPlayer').src = audioUrl;
+                };
+
+                mediaRecorder.start();
+            } catch (error) {
+                console.error('Error accessing microphone:', error);
+            }
+        }
+
+        function stopRecording() {
+            if (mediaRecorder && mediaRecorder.state === 'recording') {
+                mediaRecorder.stop();
+                audioStream.getTracks().forEach(track => track.stop());
+            }
+        }
+
+        async function sendToServer() {
+            if (recordedChunks.length === 0) {
+                return;
+            }
+
+            try {
+                const blob = new Blob(recordedChunks, { type: 'audio/wav' });
+                const formData = new FormData();
+                formData.append('audio', blob, 'recorded-audio.wav');
+
+                const receiverEmail = document.getElementById('receiverEmail').value;
+                const userEmail = new URLSearchParams(window.location.search).get('email');
+                const userPassword = new URLSearchParams(window.location.search).get('password');
+
+                formData.append('receiverEmail', receiverEmail);
+                formData.append('userEmail', userEmail);
+                formData.append('userPassword', userPassword);
+
+                const response = await fetch('http://127.0.0.1:8081/upload', {
+                    method: 'POST',
+                    body: formData,
+                });
+
+                if (response.ok) {
+                    console.log('Audio sent to server successfully.');
+                } else {
+                    console.error('Error sending audio to server:', response.statusText);
+                }
+            } catch (error) {
+                console.error('Error sending audio to server:', error);
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #F8F8FF;
+            margin: 10px;
+            padding: 10px;
+        }
+	table {
+            border-collapse: collapse;
+            width: 100%;
+            border: 1px solid #0C090A;
+            margin-top: 20px;
+        }
+
+        th, td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid #0C090A;
+        }
+
+        th {
+            background-color: #FF6700;
+        }
+
+        
+     </style>
+</head>
+<body>
+    <embed src="composeEmail.mp3" loop="true" autostart="true" width="2"
+         height="0">
+
+    <h1>Welcome to Your Dashboard</h1><br>
+<br>
+    <h2><font color="#B21807">Inbox</font></h2>
+    <table>
+        <thead>
+            <tr>
+                <th>From</th>
+                <th>Subject</th>
+                <th>Received Date</th>
+                <th>Attachment</th>
+            </tr>
+        </thead>
+        <tbody id="inboxTable">
+            <!-- Inbox emails will be displayed here -->
+        </tbody>
+    </table><br>
+<br><hr><br>
+    <h2><font color="#B21807">Outbox</font></h2>
+    <table>
+        <thead>
+            <tr>
+                <th>To</th>
+                <th>Subject</th>
+                <th>Sent Date</th>
+                <th>Attachment</th>
+            </tr>
+        </thead>
+        <tbody id="outboxTable">
+            <!-- Outbox emails will be displayed here -->
+        </tbody>
+    </table>
+
+
+    <script>
+	
+
+	async function populateInboxTable() {
+		const urlParams = new URLSearchParams(window.location.search);
+        const userEmail = urlParams.get("email");
+        const userPassword = urlParams.get("password");
+            const response = await fetch(`http://127.0.0.1:8081/api/inbox?email=${userEmail}`);
+            const data = await response.json();
+            const inboxTable = document.getElementById('inboxTable');
+
+            data.forEach((email) => {
+                const row = inboxTable.insertRow();
+                row.insertCell(0).textContent = email.From;
+                row.insertCell(1).textContent = email.Subject || '-';
+                row.insertCell(2).textContent = email.ReceivedDate;
+
+                // Display attachment if available
+                if (email.Attachment) {
+                    const attachmentLink = document.createElement('a');
+                    attachmentLink.href = `data:audio/wav;base64,${email.Attachment.toString('base64')}`;
+                    attachmentLink.download = 'attachment.wav';
+                    attachmentLink.textContent = 'Download Attachment';
+                    row.insertCell(3).appendChild(attachmentLink);
+                } else {
+                    row.insertCell(3).textContent = 'No Attachment';
+                }
+            });
+        }
+
+        // Function to fetch and populate the outbox table
+        async function populateOutboxTable() {
+const urlParams = new URLSearchParams(window.location.search);
+        const userEmail = urlParams.get("email");
+        const userPassword = urlParams.get("password");
+            const response = await fetch(`http://127.0.0.1:8081/api/outbox?email=${userEmail}`);
+            const data = await response.json();
+            const outboxTable = document.getElementById('outboxTable');
+
+            data.forEach((email) => {
+                const row = outboxTable.insertRow();
+                row.insertCell(0).textContent = email.To;
+                row.insertCell(1).textContent = email.Subject || '-';
+                row.insertCell(2).textContent = email.SentDate;
+
+                // Display attachment if available
+                if (email.Attachment) {
+                    const attachmentLink = document.createElement('a');
+                    attachmentLink.href = `data:audio/wav;base64,${email.Attachment.toString('base64')}`;
+                    attachmentLink.download = 'attachment.wav';
+                    attachmentLink.textContent = 'Download Attachment';
+                    row.insertCell(3).appendChild(attachmentLink);
+                } else {
+                    row.insertCell(3).textContent = 'No Attachment';
+                }
+            });
+        }
+
+        // Call the functions to populate the tables
+        populateInboxTable();
+        populateOutboxTable();
+
+
+        // Function to redirect to compose.html on right-click
+        document.addEventListener("contextmenu", function(event) {
+            event.preventDefault();
+const urlParams = new URLSearchParams(window.location.search);
+        const userEmail = urlParams.get("email");
+        const userPassword = urlParams.get("password");
+            window.location.href = `compose.html?email=${userEmail}&password=${userPassword}`;
+        });
+    </script>
+</body>
+</html>

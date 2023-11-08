@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign In</title>
+</head>
+<body>
+    <h1>Sign In</h1>
+    <form id="signin-form">
+        <label for="username">Username:</label>
+        <input type="text" id="username" name="username" required><br><br>
+
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" required><br><br>
+
+        <button type="submit">Sign In</button>
+    </form>
+    
+    <script >
+	document.getElementById('signin-form').addEventListener('submit', async function (e) {
+    e.preventDefault();
+    const username = document.getElementById('username').value;
+    const password = document.getElementById('password').value;
+
+    // Send a POST request to your server with user credentials
+    const response = await fetch('http://127.0.0.1:8081/signin', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ username, password }),
+    });
+
+    if (response.ok) {
+        // Redirect the user to the dashboard or another page
+        window.location.href = '/dashboard';
+    } else {
+        // Handle sign-in error, e.g., display an error message
+        console.error('Sign-in failed:', response.statusText);
+    }
+});
+	
+</script>
+</body>
+</html>

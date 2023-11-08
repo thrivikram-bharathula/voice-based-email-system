@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>credentials</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #484f4f;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .login-container {
+            background-color: #ffffff;
+            width: 300px;
+            padding: 50px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
+            text-align: center;
+            margin: 20px;
+        }
+
+        .input-container {
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .input-container input {
+            width: 90%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            transition: border-color 0.3s ease;
+        }
+
+        .input-container input:focus {
+            border-color: #007bff;
+        }
+
+        #emailInput {
+            cursor: pointer;
+        }
+
+        #passwordInput {
+            cursor: pointer;
+        }
+
+        #loginButton {
+            padding: 10px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+	    margin: 10px;
+        }
+
+        #loginButton:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+<embed src="HomeLoad.mp3" loop="true" autostart="true" width="2"
+         height="0">
+    <div class="login-container">
+        <h2>Enter Correct Credentials</h2>
+        <div class="input-container">
+            <input type="text" id="emailInput" placeholder="Email">
+        </div>
+        <div class="input-container">
+            <input type="password" id="passwordInput" placeholder="Password">
+        </div>
+        <button id="loginButton">Login</button>
+    </div>
+<audio id="entergmail" src="HomeEmail.mp3"></audio>
+<audio id="enterpass" src="HomePassword.mp3"></audio>
+<audio id="validemail" src="validemail.mp3"></audio>
+<audio id="dblclick" src="DoubleClickToLogin.mp3"></audio>
+
+    <script>
+
+        const emailInput = document.getElementById("emailInput");
+        const passwordInput = document.getElementById("passwordInput");
+        const loginButton = document.getElementById("loginButton");
+
+        document.addEventListener("contextmenu", function(event) {
+            event.preventDefault();
+            document.getElementById("entergmail").play();
+            emailInput.focus();
+        });
+
+        document.addEventListener("click", function(event) {
+            
+event.preventDefault();
+
+const userEmail = emailInput.value;
+
+    
+        const emailValidationRegex = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+        if (!emailValidationRegex.test(userEmail)) {
+            // Play the audio for invalid email
+            const audioPlayer = document.getElementById("validemail");
+            audioPlayer.play();
+            return;
+        }
+
+                passwordInput.focus();
+const audioPlayer = document.getElementById("enterpass");
+audioPlayer.play();
+audioPlayer.addEventListener("ended", function () {
+                // Redirect to another page after audio finishes (change URL)
+                 document.getElementById("dblclick").play();
+            });
+
+            
+        });
+
+        document.addEventListener("dblclick", function() {
+
+	const userEmail = emailInput.value;
+
+    
+        const emailValidationRegex = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+        if (!emailValidationRegex.test(userEmail)) {
+            // Play the audio for invalid email
+            const audioPlayer = document.getElementById("validemail");
+            audioPlayer.play();
+            return;
+        }
+
+    	const userPassword = passwordInput.value;
+    	window.location.href = `dashboard.html?email=${userEmail}&password=${userPassword}`;
+        });
+    </script>
+</body>
+</html>

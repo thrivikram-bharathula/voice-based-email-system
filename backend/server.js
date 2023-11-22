@@ -39,7 +39,7 @@ db.connect((err) => {
 async function sendEmail(toEmail, subject, text, attachmentFileName,userEmail,userPassword) {
   try {
     const transporter = nodemailer.createTransport({
-      service: 'Gmail', // Change to your email service provider
+      service: 'Gmail', 
       auth: {
         user: userEmail,
         pass: userPassword,
